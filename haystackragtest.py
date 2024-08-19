@@ -71,9 +71,9 @@ class CustomPromptTemplate:
 
         Answer the question primarily using the information from the retrieved documents. If the documents don't contain enough information to fully answer the question, you may use your expert knowledge to supplement the answer. Clearly indicate when you're using information beyond what's provided in the documents.
 
-        For each piece of information you use from the documents, provide a citation using the following format: (Source:  - title/term) If source/title/term is unknown don't provide a citation.
+        For each piece of information you use from the documents, provide a citation using the following format: (Source: [document_type/content_type] - [title/term], Chunk [chunk_index]/[total_chunks]).
 
-        If there are any image links in the content, Show them in the answer and describe them if they are relevant to answering the question. These images may contain important diagrams, charts, or visual information related to the topic.
+        If there are any image links in the content, describe them if they are relevant to answering the question. These images may contain important diagrams, charts, or visual information related to the topic.
 
         When discussing technical concepts, briefly explain them in a way that would be understandable to someone with a general knowledge of the topic.
 
@@ -159,7 +159,7 @@ def rag_pipeline_run(
             if doc.meta.get('document_type') not in ['Unknown', 'glossary_term']
         ]
 
-       images = []
+        images = []
         for doc in all_documents:
             img_links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', doc.content)
             images.extend([link for link in img_links if link.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))])
@@ -169,7 +169,7 @@ def rag_pipeline_run(
         logger.info(f"Sources: {sources}")
         logger.info(f"Images: {images}")
 
-        return answer, images
+        return answer, sources, images
     except Exception as e:
         logger.error(f"Error in RAG pipeline: {str(e)}")
         return f"An error occurred while processing your query: {str(e)}", [], []
