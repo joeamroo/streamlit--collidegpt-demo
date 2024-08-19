@@ -169,7 +169,7 @@ def rag_pipeline_run(
         logger.info(f"Sources: {sources}")
         logger.info(f"Images: {images}")
 
-        return answer, sources, images
+        return answer, images
     except Exception as e:
         logger.error(f"Error in RAG pipeline: {str(e)}")
         return f"An error occurred while processing your query: {str(e)}", [], []
