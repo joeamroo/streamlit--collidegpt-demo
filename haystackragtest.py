@@ -159,8 +159,10 @@ def rag_pipeline_run(
             if doc.meta.get('document_type') not in ['Unknown', 'glossary_term']
         ]
 
-        # Extract image URLs
-        images = extract_image_urls(all_documents)
+       images = []
+        for doc in all_documents:
+            img_links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', doc.content)
+            images.extend([link for link in img_links if link.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))])
 
         # Debugging: Log before returning
         logger.info(f"Generated answer: {answer}")
@@ -171,25 +173,6 @@ def rag_pipeline_run(
     except Exception as e:
         logger.error(f"Error in RAG pipeline: {str(e)}")
         return f"An error occurred while processing your query: {str(e)}", [], []
-
-
-def generate_response(prompt: str) -> str:
-    generator = OpenAIGenerator(api_key=Secret.from_env_var("OPENAI_API_KEY"), model="gpt-4o-mini")
-    response = generator.run(prompt=prompt)
-    return response["replies"][0]
-        
-def extract_image_urls(documents: List[Document]) -> List[str]:
-    image_urls = []
-    for doc in documents:
-        # Check if there's an image URL in the document metadata
-        if 'image_url' in doc.meta:
-            image_urls.append(doc.meta['image_url'])
-        
-        # Also check the document content for image URLs
-        content_urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', doc.content)
-        image_urls.extend([url for url in content_urls if url.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))])
-    
-    return list(set(image_urls))  # Remove duplicates
 
 
 def main():
