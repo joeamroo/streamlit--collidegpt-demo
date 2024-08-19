@@ -11,22 +11,17 @@ from haystack.components.generators import OpenAIGenerator
 from haystack_integrations.components.embedders.fastembed import FastembedTextEmbedder
 from haystack import component
 import tiktoken
-
 # Disable telemetry
 os.environ["HAYSTACK_TELEMETRY_ENABLED"] = "False"
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 # Qdrant configuration
 QDRANT_URL = "https://326191f2-80a7-4787-9bdd-ef46a5f88987.us-east4-0.gcp.cloud.qdrant.io:6333"
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 if not QDRANT_API_KEY:
     raise ValueError("QDRANT_API_KEY environment variable is not set")
-
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
-
 def initialize_document_stores():
     common_params = {
         "url": QDRANT_URL,
@@ -42,11 +37,9 @@ def initialize_document_stores():
         "muse_videos": QdrantDocumentStore(index="muse_videos_haystack", **common_params),
         "glossaries": QdrantDocumentStore(index="glossaries_haystack", **common_params)
     }
-
 def count_tokens(text: str, model: str = "gpt-4o-mini") -> int:
     encoding = tiktoken.encoding_for_model(model)
     return len(encoding.encode(text))
-
 def truncate_prompt(prompt: str, max_tokens: int = 128000) -> str:
     current_tokens = count_tokens(prompt)
     if current_tokens > max_tokens:
@@ -55,7 +48,6 @@ def truncate_prompt(prompt: str, max_tokens: int = 128000) -> str:
         logger.warning(f"Prompt truncated to fit within {max_tokens} tokens.")
         return truncated_prompt
     return prompt
-
 @component
 class CustomPromptTemplate:
     @component.output_types(prompt=str)
@@ -68,24 +60,18 @@ class CustomPromptTemplate:
         ])
         prompt = f"""
         You are an expert in various industries. Your task is to answer questions based on the provided documents.
-
         Answer the question primarily using the information from the retrieved documents. If the documents don't contain enough information to fully answer the question, you may use your expert knowledge to supplement the answer. Clearly indicate when you're using information beyond what's provided in the documents.
-
         For each piece of information you use from the documents, provide a citation using the following format: (Source: [document_type/content_type] - [title/term], Chunk [chunk_index]/[total_chunks]).
-
+        For each piece of information you use from the documents, provide a citation using the following format: (Source:  - title/term) If source/title/term is unknown don't provide a citation.
         If there are any image links in the content, describe them if they are relevant to answering the question. These images may contain important diagrams, charts, or visual information related to the topic.
-
+        If there are any image links in the content, Show them in the answer and describe them if they are relevant to answering the question. These images may contain important diagrams, charts, or visual information related to the topic.
         When discussing technical concepts, briefly explain them in a way that would be understandable to someone with a general knowledge of the topic.
-
         Retrieved Documents:
         {context}
-
         Question: {query}
-
         Expert Answer:
         """
         return {"prompt": prompt}
-
 def rag_pipeline_run(
     query: str,
     document_stores: Dict[str, QdrantDocumentStore],
@@ -98,7 +84,6 @@ def rag_pipeline_run(
         # Step 1: Generate embeddings
         embedding_result = embedder.run(text=query)
         query_embedding = embedding_result["embedding"]
-
         all_documents = []
         for collection, document_store in document_stores.items():
             try:
@@ -122,11 +107,9 @@ def rag_pipeline_run(
                 logger.info(f"Retrieved {len(result['documents'])} documents from '{collection}' collection")
             except Exception as e:
                 logger.error(f"Error retrieving documents from '{collection}': {str(e)}")
-
         if not all_documents:
             logger.warning("No documents were retrieved from any collection.")
             return "I'm sorry, but I couldn't find any relevant information to answer your query. Could you please rephrase or ask a different question?", [], []
-
         # Step 2: Generate prompt
         prompt_template = CustomPromptTemplate()
         prompt_result = prompt_template.run(documents=all_documents, query=query)
@@ -134,9 +117,7 @@ def rag_pipeline_run(
         
         # Debugging: Log generated prompt
         logger.info(f"Generated prompt: {prompt}")
-
         prompt = truncate_prompt(prompt, max_tokens=128000)
-
         # Step 3: Call OpenAI API
         generator = OpenAIGenerator(api_key=Secret.from_env_var("OPENAI_API_KEY"), model="gpt-4o-mini")
         response = generator.run(prompt=prompt)
@@ -145,7 +126,6 @@ def rag_pipeline_run(
         logger.info(f"OpenAI API response: {response}")
         
         answer = response["replies"][0]
-
         sources = [
             {
                 "document_type": doc.meta.get('document_type', doc.meta.get('content_type', 'Unknown')),
@@ -158,23 +138,18 @@ def rag_pipeline_run(
             for doc in all_documents
             if doc.meta.get('document_type') not in ['Unknown', 'glossary_term']
         ]
-
         images = []
         for doc in all_documents:
             img_links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', doc.content)
             images.extend([link for link in img_links if link.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))])
-
         # Debugging: Log before returning
         logger.info(f"Generated answer: {answer}")
         logger.info(f"Sources: {sources}")
         logger.info(f"Images: {images}")
-
-        return answer, images
+        return answer, sources, images
     except Exception as e:
         logger.error(f"Error in RAG pipeline: {str(e)}")
         return f"An error occurred while processing your query: {str(e)}", [], []
-
-
 def main():
     try:
         embedder = FastembedTextEmbedder(model=EMBEDDING_MODEL)
@@ -187,7 +162,6 @@ def main():
     except Exception as e:
         logger.error(f"Error initializing components: {str(e)}")
         return
-
     print("Welcome to the RAG Pipeline. Type 'exit' to quit.")
     while True:
         query = input("\nEnter your query: ")
@@ -206,6 +180,5 @@ def main():
                     print(f"- {img}")
         except Exception as e:
             logger.error(f"Error processing query: {str(e)}")
-
 if __name__ == "__main__":
     main()
