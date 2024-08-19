@@ -1,12 +1,15 @@
 import streamlit as st
 import os
+import re
+from typing import List, Dict, Tuple
 from haystack import Pipeline
 from haystack.utils import Secret
 from haystack.dataclasses import Document
-from haystack.document_stores import QdrantDocumentStore
-from haystack.components.retrievers import QdrantEmbeddingRetriever
+from haystack.document_stores.qdrant import QdrantDocumentStore
+from haystack.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack.components.generators import OpenAIGenerator
 from haystack.components.embedders import SentenceTransformersTextEmbedder
+import tiktoken
 
 # Set environment variables from Streamlit secrets
 os.environ["QDRANT_API_KEY"] = st.secrets["QDRANT_API_KEY"]
