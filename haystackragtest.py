@@ -162,8 +162,6 @@ def rag_pipeline_run(
         # Extract image URLs
         images = extract_image_urls(all_documents)
 
-        return response, images
-
         # Debugging: Log before returning
         logger.info(f"Generated answer: {answer}")
         logger.info(f"Sources: {sources}")
