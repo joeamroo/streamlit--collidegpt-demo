@@ -1,0 +1,6 @@
+streamlit
+haystack-ai
+qdrant-client
+fastembed
+tiktoken
+azure-storage-blob
