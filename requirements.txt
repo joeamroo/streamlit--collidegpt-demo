@@ -10,3 +10,4 @@ fastembed-haystack
 fastembed
 Pillow
 requests
+re
