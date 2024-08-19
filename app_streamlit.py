@@ -6,6 +6,9 @@ from PIL import Image
 import requests
 from io import BytesIO
 
+# Add the current directory to sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from haystackragtest import rag_pipeline_run, initialize_document_stores, FastembedTextEmbedder
 
 # Set API keys using Streamlit secrets
@@ -18,7 +21,6 @@ embedder = FastembedTextEmbedder(model="BAAI/bge-small-en-v1.5")
 embedder.warm_up()
 
 def render_latex_selectively(text):
-    # Function to selectively render LaTeX in the text
     parts = re.split(r'(\$\$.*?\$\$|\$.*?\$)', text)
     for i, part in enumerate(parts):
         if part.startswith('$') and part.endswith('$'):
