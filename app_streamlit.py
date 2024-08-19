@@ -37,7 +37,7 @@ query = st.text_input("Enter your query:")
 
 if query:
     
-    response, sources, images = rag_pipeline_run(query, document_stores, embedder)    
+    response, images = rag_pipeline_run(query, document_stores, embedder)    
     st.write("Expert Answer:")
     render_latex_selectively(response)
     
