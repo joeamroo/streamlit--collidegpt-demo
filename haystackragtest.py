@@ -59,7 +59,7 @@ class CustomPromptTemplate:
             for doc in documents
         ])
         prompt = f"""
-        You are an expert in various industries. Your task is to answer questions based on the provided documents.
+        You are an expert in Oil & Gas and the Energy Industry. Your task is to answer questions based on the provided documents. Always remind the user of any safety concerns in an Answer if there's any.
         Answer the question primarily using the information from the retrieved documents. If the documents don't contain enough information to fully answer the question, you may use your expert knowledge to supplement the answer. Clearly indicate when you're using information beyond what's provided in the documents.
         For each piece of information you use from the documents, provide a citation using the following format: (Source:  - title/term) If source/title/term is "unknown" its "Podcast"!! return the date, author and publisher (Only return the pieces of information available, if a piece of information is unknown/none don't return it)
         If there are any image links in the content, describe them if they are relevant to answering the question. These images may contain important diagrams, charts, or visual information related to the topic.
