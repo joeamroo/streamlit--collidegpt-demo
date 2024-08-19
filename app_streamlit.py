@@ -1,6 +1,9 @@
 import streamlit as st
 import os
 import sys
+from PIL import Image
+import requests
+from io import BytesIO
 from haystackragtest import rag_pipeline_run, initialize_document_stores, FastembedTextEmbedder
 
 # Set API keys using Streamlit secrets
@@ -20,13 +23,20 @@ if query:
     response, sources, images = rag_pipeline_run(query, document_stores, embedder)
     
     st.write("Expert Answer:")
-    st.write(response)
+    st.latex(response)  # This will render LaTeX in the response
     
+    # Display images
+    for img_url in images:
+        try:
+            response = requests.get(img_url)
+            img = Image.open(BytesIO(response.content))
+            st.image(img, caption="Retrieved Image")
+        except Exception as e:
+            st.warning(f"Failed to load image from {img_url}: {str(e)}")
+    
+    # Display used sources as footnotes
     st.write("Sources:")
-    for source in sources:
-        st.write(f"- [{source['document_type']}] {source['title']} (Chunk {source['chunk_index']}/{source['total_chunks']}) from {source['collection']} collection")
-    
-    if images:
-        st.write("Relevant Images:")
-        for img in images:
-            st.image(img)
+    for idx, source in enumerate(sources, start=1):
+        st.write(f"[{idx}] {source['title']} (Chunk {source['chunk_index']}/{source['total_chunks']}) from {source['collection']} collection")
+
+# You may need to add additional styling or formatting to make the footnotes look better
