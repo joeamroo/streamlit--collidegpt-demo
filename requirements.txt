@@ -4,3 +4,4 @@ qdrant-client
 fastembed
 tiktoken
 azure-storage-blob
+typing-extensions
