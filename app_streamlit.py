@@ -1,10 +1,13 @@
 import streamlit as st
-import sys
 import os
-sys.path.append(os.path.expanduser('~'))
+import sys
+
+# Add the current directory to sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from haystackragtest import rag_pipeline_run, initialize_document_stores, FastembedTextEmbedder
 
-# Set API keys (consider using Streamlit secrets for production)
+# Set API keys using Streamlit secrets
 os.environ["QDRANT_API_KEY"] = st.secrets["QDRANT_API_KEY"]
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
