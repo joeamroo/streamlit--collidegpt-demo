@@ -7,3 +7,4 @@ fastembed
 openai
 qdrant-haystack
 fastembed-haystack
+fastembed
