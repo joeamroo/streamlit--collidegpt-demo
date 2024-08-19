@@ -8,3 +8,4 @@ openai
 qdrant-haystack
 fastembed-haystack
 fastembed
+huggingface
