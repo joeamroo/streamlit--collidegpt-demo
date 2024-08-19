@@ -8,3 +8,5 @@ openai
 qdrant-haystack
 fastembed-haystack
 fastembed
+Pillow
+requests
