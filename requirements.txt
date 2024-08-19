@@ -1,8 +1,8 @@
 streamlit
 haystack-ai
+tiktoken
+fastapi
 qdrant-client
 fastembed
-tiktoken
-azure-storage-blob
-typing-extensions
 openai
+haystack-integrations
