@@ -1,10 +1,6 @@
 import streamlit as st
 import os
 import sys
-
-# Add the current directory to sys.path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
 from haystackragtest import rag_pipeline_run, initialize_document_stores, FastembedTextEmbedder
 
 # Set API keys using Streamlit secrets
