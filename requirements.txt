@@ -5,3 +5,4 @@ fastembed
 tiktoken
 azure-storage-blob
 typing-extensions
+openai
