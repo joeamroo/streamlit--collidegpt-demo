@@ -36,7 +36,7 @@ st.title("RAG Pipeline Demo")
 query = st.text_input("Enter your query:")
 
 if query:
-    response, images = rag_pipeline_run(query, document_stores, embedder)
+    response, images, sources = rag_pipeline_run(query, document_stores, embedder)
     
     st.write("Expert Answer:")
     render_latex_selectively(response)
